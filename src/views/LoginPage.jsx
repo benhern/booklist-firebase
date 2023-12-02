@@ -9,7 +9,8 @@ import {
 } from "firebase/auth";
 import { useDispatch } from "react-redux";
 import { setUser } from "../store/usersSlice.js";
-import { fetchBooks } from "../store/booksSlice.js";
+import { useSelector } from "react-redux";
+import { selectBooks } from "../store/booksSlice.js";
 
 function LoginPage() {
   const dispatch = useDispatch();
@@ -17,6 +18,10 @@ function LoginPage() {
   const [loginType, setLoginType] = useState("login");
   const [userCredentials, setUserCredentials] = useState({});
   const [error, setError] = useState("");
+
+  const bookStatus = useSelector(selectBooks).status;
+
+  console.log("login book status: ", bookStatus);
 
   onAuthStateChanged(auth, (user) => {
     if (user) {

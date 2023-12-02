@@ -10,6 +10,9 @@ import {
   addDoc,
 } from "firebase/firestore";
 import { db, auth } from "../firebase/config.js";
+import { signOut } from "firebase/auth";
+
+import { setUser } from "../store/usersSlice.js";
 
 export const booksSlice = createSlice({
   name: "books",
@@ -69,6 +72,13 @@ export const booksSlice = createSlice({
       .addCase(addBook.rejected, (state, action) => {
         state.status = "failed";
         console.log(action.error.message);
+      })
+      .addCase(logOut.fulfilled, (state, action) => {
+        state.status = "idle";
+      })
+      .addCase(logOut.rejected, (state, action) => {
+        state.status = "failed";
+        console.log(action.error.message);
       });
   },
 });
@@ -82,12 +92,11 @@ export const fetchBooks = createAsyncThunk("books/fetchBooks", async () => {
     collection(db, "books"),
     where("user_id", "==", auth.currentUser.uid)
   );
-  console.log("fetching books for ", auth.currentUser.uid)
+  console.log("fetching books for ", auth.currentUser.uid);
   const querySnapshot = await getDocs(q);
-  
+
   let bookList = [];
   querySnapshot.forEach((doc) => {
-    console.log("database books ",doc.data());
     bookList.push({ id: doc.id, ...doc.data() });
   });
   return bookList;
@@ -118,4 +127,16 @@ export const addBook = createAsyncThunk("books/addBook", async (payload) => {
   const docRef = await addDoc(collection(db, "books"), newBook);
   newBook.id = docRef.id;
   return newBook;
+});
+
+export const logOut = createAsyncThunk("books/logOut", async () => {
+  if (confirm("Are you sure you want to log out?")) {
+    signOut(auth)
+      .then(() => {
+        setUser(null);
+      })
+      .catch((error) => {
+        console.log(error);
+      });
+  }
 });

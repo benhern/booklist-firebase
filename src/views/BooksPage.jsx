@@ -11,6 +11,7 @@ function BooksPage() {
   const pageTitle = "📖 Book List with Redux and Firebase";
 
   const bookStatus = useSelector(selectBooks).status;
+  console.log("bookspage status: ", bookStatus);
 
   useEffect(() => {
     if (bookStatus == "idle") {
